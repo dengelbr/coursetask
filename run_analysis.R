@@ -70,15 +70,15 @@ mean_dev<-data[,c("Subject","ActivityName",v[mean],v[std])]
 
 # create averages for each activity and column
 
-# get all subjects
-subjects<-sort(unique(mean_dev$Subject))
-
 # get all ActivityNames
 activities<-sort(unique(mean_dev$ActivityName))
 
+# get all subjects
+subjects<-sort(unique(mean_dev$Subject))
+
 # generate means for all subject / activity tuples
-for (subject in subjects) {
-    for (activity in activities) {
+for (activity in activities) {
+    for (subject in subjects) {
        sa_subset<-subset(mean_dev,Subject==subject & ActivityName==activity)
        x<-lapply(sa_subset[,c(v[mean],v[std])],mean,na.rm=TRUE)
        if (exists("new_data")) {
