@@ -111,4 +111,4 @@ mean_dev<-get_mean_std(data)
 avg_mean_std<-get_average_mean_std(mean_dev)
 
 # write file
-write.table(avg_mean_std,"data_file.txt",row.name=FALSE)
+write.table(avg_mean_std,"tidydata.txt",row.name=FALSE)
