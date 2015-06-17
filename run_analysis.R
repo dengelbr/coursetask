@@ -47,48 +47,68 @@ merge_train_and_test_data <- function() {
     train_data<-cbind(train_subject,train_activity,train_data)
     
     # create a common data.frame for test and train data and return it
-    data<-rbind(test_data,train_data)
-    data
+    return(rbind(test_data,train_data))
 }
 
-# start of script
+# filter only subject, activity name, mean and deviation and return data frame
+get_mean_std <- function(df) {
+    # get labels of df
+    v<-names(df)
 
-# receive data
+    # get all indexes for mean
+    mean<-grep("-mean",v,fixed=TRUE)
+
+    # get all indexes for std
+    std<-grep("-std",v,fixed=TRUE)
+
+    # filter data for ActivityName, mean and dev
+    return(df[,c("Subject","ActivityName",v[mean],v[std])])
+}
+
+get_average_mean_std <- function(df) {
+    # get labels of df
+    v<-names(df)
+
+    # get all indexes for mean
+    mean<-grep("-mean",v,fixed=TRUE)
+
+    # get all indexes for std
+    std<-grep("-std",v,fixed=TRUE)
+
+    # get all activities (sorted)
+    activities<-sort(unique(df$ActivityName))
+
+    # get all subjects (sorted)
+    subjects<-sort(unique(mean_dev$Subject))
+
+    # generate means for all subject / activity tuples
+    for (activity in activities) {
+        for (subject in subjects) {
+           sa_subset<-subset(df,Subject==subject & ActivityName==activity)
+           x<-lapply(sa_subset[,c(v[mean],v[std])],mean,na.rm=TRUE)
+           if (exists("new_data")) {
+               new_data<-rbind(new_data,c(Subject=subject,ActivityName=activity,x))
+           }
+           else {
+               new_data<-c(Subject=subject,ActivityName=activity,x)
+           }
+        }
+    }       
+    return(new_data)
+}    
+
+#####
+# start of main script
+#####
+
+# get merged data
 data<-merge_train_and_test_data()
 
-# get labels of data
-v<-names(data)
+# get mean and deviation
+mean_dev<-get_mean_std(data)
 
-# get all indexes for mean
-mean<-grep("-mean",v,fixed=TRUE)
-
-# get all indexes for std
-std<-grep("-std",v,fixed=TRUE)
-
-# filter data for ActivityName, mean and dev
-mean_dev<-data[,c("Subject","ActivityName",v[mean],v[std])]
-
-# create averages for each activity and column
-
-# get all ActivityNames
-activities<-sort(unique(mean_dev$ActivityName))
-
-# get all subjects
-subjects<-sort(unique(mean_dev$Subject))
-
-# generate means for all subject / activity tuples
-for (activity in activities) {
-    for (subject in subjects) {
-       sa_subset<-subset(mean_dev,Subject==subject & ActivityName==activity)
-       x<-lapply(sa_subset[,c(v[mean],v[std])],mean,na.rm=TRUE)
-       if (exists("new_data")) {
-           new_data<-rbind(new_data,c(Subject=subject,ActivityName=activity,x))
-       }
-       else {
-           new_data<-c(Subject=subject,ActivityName=activity,x)
-       }
-    }
-}       
+# get averages of mean and deviation
+avg_mean_std<-get_average_mean_std(mean_dev)
 
 # write file
-write.table(new_data,"data_file.txt",row.name=FALSE)
+write.table(avg_mean_std,"data_file.txt",row.name=FALSE)
