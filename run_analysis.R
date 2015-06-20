@@ -20,12 +20,12 @@ merge_train_and_test_data <- function() {
     
     # read test subject data and set label
     test_subject<-read.table("UCI HAR Dataset/test/subject_test.txt")
-    names(test_subject) <- "Subject"
+    names(test_subject) <- "subject"
     
     # read test activities and map id to name
     test_activity<-cbind(read.table("UCI HAR Dataset/test/y_test.txt"),NA)
-    names(test_activity) <- c("ActivityId","ActivityName")
-    test_activity$ActivityName<-activity_names$Name[test_activity$ActivityId]
+    names(test_activity) <- c("activityid","activity")
+    test_activity$activity<-activity_names$Name[test_activity$activityid]
     
     # create one data.frame for test data
     test_data<-cbind(test_subject,test_activity,test_data)
@@ -36,12 +36,12 @@ merge_train_and_test_data <- function() {
     
     # read train subject data and set label
     train_subject<-read.table("UCI HAR Dataset/train/subject_train.txt")
-    names(train_subject) <- "Subject"
+    names(train_subject) <- "subject"
     
     # read train activities and map id to name
     train_activity<-cbind(read.table("UCI HAR Dataset/train/y_train.txt"),NA)
-    names(train_activity) <- c("ActivityId","ActivityName")
-    train_activity$ActivityName<-activity_names$Name[train_activity$ActivityId]
+    names(train_activity) <- c("activityid","activity")
+    train_activity$activity<-activity_names$Name[train_activity$activityid]
     
     # create one data.frame for train data
     train_data<-cbind(train_subject,train_activity,train_data)
@@ -61,8 +61,8 @@ get_mean_std <- function(df) {
     # get all indexes for std
     std<-grep("-std",v,fixed=TRUE)
 
-    # filter data for ActivityName, mean and dev
-    return(df[,c("Subject","ActivityName",v[mean],v[std])])
+    # filter data for activity, mean and dev
+    return(df[,c("subject","activity",v[mean],v[std])])
 }
 
 get_average_mean_std <- function(df) {
@@ -76,21 +76,21 @@ get_average_mean_std <- function(df) {
     std<-grep("-std",v,fixed=TRUE)
 
     # get all activities (sorted)
-    activities<-sort(unique(df$ActivityName))
+    activities<-sort(unique(df$activity))
 
     # get all subjects (sorted)
-    subjects<-sort(unique(mean_dev$Subject))
+    subjects<-sort(unique(mean_dev$subject))
 
     # generate means for all subject / activity tuples
-    for (activity in activities) {
-        for (subject in subjects) {
-           sa_subset<-subset(df,Subject==subject & ActivityName==activity)
+    for (curr_activity in activities) {
+        for (curr_subject in subjects) {
+           sa_subset<-subset(df,subject==curr_subject & activity==curr_activity)
            x<-lapply(sa_subset[,c(v[mean],v[std])],mean,na.rm=TRUE)
            if (exists("new_data")) {
-               new_data<-rbind(new_data,c(Subject=subject,ActivityName=activity,x))
+               new_data<-rbind(new_data,c(subject=curr_subject,activity=curr_activity,x))
            }
            else {
-               new_data<-c(Subject=subject,ActivityName=activity,x)
+               new_data<-c(subject=curr_subject,activity=curr_activity,x)
            }
         }
     }       
