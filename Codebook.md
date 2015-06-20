@@ -30,11 +30,11 @@ Is passed the data.frame from function get_mean_std() and creates the averages o
 * calls get_average_mean_std() with result previous call
 * writes result from call to get_average_mean_std() to the file tidydata.txt in the current directory with write.file(..., row.name=FALSE)
 
-## Resulting output file tidydata.txt
+## Resulting Output File tidydata.txt
 * header line containing all labels: "subject", "activity", "tBodyAcc-mean()-X", ....
 * one line for every values
 
-## Meaning of columns
+## Meaning of Columns
 * activity:	activity name
 * subject:	subject id
 * means:		like tBodyAcc-mean()-X, etc.
@@ -56,5 +56,6 @@ All values are blank separated.
 
 ...
 
+## Further Information
 
 For more information see: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
