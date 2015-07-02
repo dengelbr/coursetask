@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+library(dplyr)
+
 # this script has to be started from the data root
 
 # function merge_train_and_test_data reads all data and descriptive files
@@ -52,49 +54,15 @@ merge_train_and_test_data <- function() {
 
 # filter only subject, activity name, mean and deviation and return data frame
 get_mean_std <- function(df) {
-    # get labels of df
-    v<-names(df)
-
-    # get all indexes for mean
-    mean<-grep("-mean",v,fixed=TRUE)
-
-    # get all indexes for std
-    std<-grep("-std",v,fixed=TRUE)
-
-    # filter data for activity, mean and dev
-    return(df[,c("subject","activity",v[mean],v[std])])
+    return(select(df[!duplicated(names(df))],
+        matches("subject|^activity$|-mean|-std")))
 }
 
 get_average_mean_std <- function(df) {
-    # get labels of df
-    v<-names(df)
-
-    # get all indexes for mean
-    mean<-grep("-mean",v,fixed=TRUE)
-
-    # get all indexes for std
-    std<-grep("-std",v,fixed=TRUE)
-
-    # get all activities (sorted)
-    activities<-sort(unique(df$activity))
-
-    # get all subjects (sorted)
-    subjects<-sort(unique(mean_dev$subject))
-
-    # generate means for all subject / activity tuples
-    for (curr_activity in activities) {
-        for (curr_subject in subjects) {
-           sa_subset<-subset(df,subject==curr_subject & activity==curr_activity)
-           x<-lapply(sa_subset[,c(v[mean],v[std])],mean,na.rm=TRUE)
-           if (exists("new_data")) {
-               new_data<-rbind(new_data,c(subject=curr_subject,activity=curr_activity,x))
-           }
-           else {
-               new_data<-c(subject=curr_subject,activity=curr_activity,x)
-           }
-        }
-    }       
-    return(new_data)
+    ams<-aggregate(mean_dev[,3:ncol(df)],list(df$subject,df$activity),mean)
+    names(ams)[1]<-"subject";
+    names(ams)[2]<-"activity";
+    return(ams)
 }    
 
 #####
