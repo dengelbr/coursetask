@@ -59,7 +59,7 @@ get_mean_std <- function(df) {
 }
 
 get_average_mean_std <- function(df) {
-    ams<-aggregate(df[,3:ncol(df)],list(df$subject,df$activity),mean)
+    ams<-aggregate(x=df[,3:ncol(df)],by=list(df$subject,df$activity),FUN=mean)
     names(ams)[1]<-"subject";
     names(ams)[2]<-"activity";
     return(ams)
